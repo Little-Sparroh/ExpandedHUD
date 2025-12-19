@@ -4,7 +4,7 @@ A comprehensive HUD enhancement mod for MycoPunk that provides detailed weapon s
 
 ## Description
 
-ExpandedHUD enhances gameplay by displaying detailed weapon statistics, real-time combat damage tracking, and player movement speed. Features include gun stats (damage, fire rate, recoil, etc.), damage meter with DPS calculations, and a speedometer for precise movement tracking.
+ExpandedHUD enhances gameplay by displaying detailed weapon statistics, real-time combat damage tracking, player movement speed, altitude information, consumable hotkeys, enhanced end-screen statistics, health percentage display, and XP information tweaks. Features include gun stats (damage, fire rate, recoil, etc.), damage meter with DPS calculations, speedometer for precise movement tracking, altimeter for altitude tracking, consumable hotkeys for quick item access, detailed mission end statistics, real-time health percentage overlay, and improved leveling information.
 
 The template includes proper plugin attributes, HarmonyLib integration, logging setup, and publishing configuration for Thunderstore mod manager. All mods in the MycoPunk collection are built from this base template, ensuring consistent structure and standards across different modifications.
 
@@ -73,6 +73,7 @@ Once customized and built, the mod will automatically load through BepInEx when 
 ## Authors
 
 * Sparroh (MycoPunk mod collection maintainer)
+* DarkCactus (original UITweaks Mod)
 * funlennysub (original BepInEx template)
 * [@DomPizzie](https://twitter.com/dompizzie) (README template)
 
