@@ -51,6 +51,7 @@ The mod loads automatically when you start MycoPunk. HUD elements can be toggled
 ## Authors
 
 - Sparroh
+- DarkCactus (original UITweaks)
 - funlennysub (BepInEx template)
 - [@DomPizzie](https://twitter.com/dompizzie) (README template)
 
