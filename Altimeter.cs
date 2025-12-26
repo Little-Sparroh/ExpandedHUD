@@ -3,7 +3,6 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Pigeon.Movement;
 
 public class Altimeter

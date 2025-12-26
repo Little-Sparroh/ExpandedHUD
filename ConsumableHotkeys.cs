@@ -41,11 +41,16 @@ public class ConsumableHotkeys
 
         Instance = this;
 
-        SetupConfig();
-        InitializeStatuses();
-        SetupConfigWatcher();
-
-        Plugin.Logger.LogInfo("ConsumableHotkeys loaded successfully.");
+        try
+        {
+            SetupConfig();
+            InitializeStatuses();
+            SetupConfigWatcher();
+        }
+        catch (Exception ex)
+        {
+            SparrohPlugin.Logger.LogError($"Failed to initialize ConsumableHotkeys: {ex.Message}");
+        }
     }
 
     private void SetupConfig()
@@ -122,18 +127,25 @@ public class ConsumableHotkeys
 
     public void Update()
     {
-        if (!enableHUD.Value) return;
-
-        if (hudContainer == null)
+        try
         {
-            CreateHUD();
-            return;
+            if (!enableHUD.Value) return;
+
+            if (hudContainer == null)
+            {
+                CreateHUD();
+                return;
+            }
+
+            if (hudText == null || consumableStatuses == null) return;
+
+            UpdateHUDText();
+            CheckHotkeys();
         }
-
-        if (hudText == null || consumableStatuses == null) return;
-
-        UpdateHUDText();
-        CheckHotkeys();
+        catch (Exception ex)
+        {
+            SparrohPlugin.Logger.LogError($"Error in ConsumableHotkeys.Update(): {ex.Message}");
+        }
     }
 
     private void UpdateHUDText()
@@ -253,7 +265,7 @@ public class ConsumableHotkeys
         }
         catch (System.Exception e)
         {
-            Plugin.Logger.LogError($"Error activating {itemName} from storage: {e.Message}");
+            SparrohPlugin.Logger.LogError($"Error activating {itemName} from storage: {e.Message}");
         }
 
         return false;
@@ -387,9 +399,16 @@ public class ConsumableHotkeys
 
     public void OnDestroy()
     {
-        if (hudContainer != null)
+        try
         {
-            UnityEngine.Object.Destroy(hudContainer);
+            if (hudContainer != null)
+            {
+                UnityEngine.Object.Destroy(hudContainer);
+            }
+        }
+        catch (Exception ex)
+        {
+            SparrohPlugin.Logger.LogError($"Error in ConsumableHotkeys.OnDestroy(): {ex.Message}");
         }
     }
 

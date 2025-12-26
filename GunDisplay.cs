@@ -5,7 +5,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Pigeon;
 using Pigeon.Movement;
 
 public class GunDisplay
@@ -39,17 +38,24 @@ public class GunDisplay
         this.configFile = configFile;
         this.harmony = harmony;
 
-        enableGunStatsHUD = configFile.Bind("General", "EnableGunStatsHUD", true, "If true, the gun stats HUD will be displayed.");
-        enableGunStatsHUD.SettingChanged += OnEnableGunStatsHUDChanged;
+        try
+        {
+            enableGunStatsHUD = configFile.Bind("General", "EnableGunStatsHUD", true, "If true, the gun stats HUD will be displayed.");
+            enableGunStatsHUD.SettingChanged += OnEnableGunStatsHUDChanged;
 
-        playerField = typeof(Gun).GetField("player", BindingFlags.NonPublic | BindingFlags.Instance);
-        activeProp = typeof(IGear).GetProperty("Active");
-        modifyBulletDataMethod = typeof(Gun).GetMethod("ModifyBulletData", BindingFlags.NonPublic | BindingFlags.Instance);
-        activeUpgradesField = typeof(Player).GetField("ActiveUpgrades", BindingFlags.NonPublic | BindingFlags.Instance);
+            playerField = typeof(Gun).GetField("player", BindingFlags.NonPublic | BindingFlags.Instance);
+            activeProp = typeof(IGear).GetProperty("Active");
+            modifyBulletDataMethod = typeof(Gun).GetMethod("ModifyBulletData", BindingFlags.NonPublic | BindingFlags.Instance);
+            activeUpgradesField = typeof(Player).GetField("ActiveUpgrades", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        harmony.PatchAll(typeof(GunEnablePatch));
-        harmony.PatchAll(typeof(GunDisablePatch));
-        harmony.PatchAll(typeof(GunFiredPatch));
+            harmony.PatchAll(typeof(GunEnablePatch));
+            harmony.PatchAll(typeof(GunDisablePatch));
+            harmony.PatchAll(typeof(GunFiredPatch));
+        }
+        catch (Exception ex)
+        {
+            SparrohPlugin.Logger.LogError($"Failed to initialize GunDisplay: {ex.Message}");
+        }
     }
 
     public bool IsActive => gunStatsHudContainer != null && gunStatsHudContainer.activeSelf;
@@ -119,21 +125,28 @@ public class GunDisplay
 
     public void Update()
     {
-        if (!enableGunStatsHUD.Value) return;
-
-        if (gunStatsHudContainer == null && Player.LocalPlayer != null && Player.LocalPlayer.PlayerLook != null && Player.LocalPlayer.PlayerLook.Reticle != null)
+        try
         {
-            CreateGunStatsHUD();
-        }
-        updateTimer += Time.deltaTime;
-        if (updateTimer >= UpdateInterval)
-        {
-            updateTimer = 0f;
-            UpdateCurrentGun();
-            UpdateGunStatsHUD();
-        }
+            if (!enableGunStatsHUD.Value) return;
 
-        AdjustPosition();
+            if (gunStatsHudContainer == null && Player.LocalPlayer != null && Player.LocalPlayer.PlayerLook != null && Player.LocalPlayer.PlayerLook.Reticle != null)
+            {
+                CreateGunStatsHUD();
+            }
+            updateTimer += Time.deltaTime;
+            if (updateTimer >= UpdateInterval)
+            {
+                updateTimer = 0f;
+                UpdateCurrentGun();
+                UpdateGunStatsHUD();
+            }
+
+            AdjustPosition();
+        }
+        catch (Exception ex)
+        {
+            SparrohPlugin.Logger.LogError($"Error in GunDisplay.Update(): {ex.Message}");
+        }
     }
 
     public Vector2 GetGunStatsHUDSize()
@@ -306,11 +319,21 @@ public class GunDisplay
 
     public void OnDestroy()
     {
-        if (gunStatsHudContainer != null)
+        try
         {
-            UnityEngine.Object.Destroy(gunStatsHudContainer);
+            if (gunStatsHudContainer != null)
+            {
+                UnityEngine.Object.Destroy(gunStatsHudContainer);
+            }
+            if (harmony != null)
+            {
+                harmony.UnpatchSelf();
+            }
         }
-        harmony.UnpatchSelf();
+        catch (Exception ex)
+        {
+            SparrohPlugin.Logger.LogError($"Error in GunDisplay.OnDestroy(): {ex.Message}");
+        }
     }
 
     [HarmonyPatch(typeof(Gun), "Enable")]

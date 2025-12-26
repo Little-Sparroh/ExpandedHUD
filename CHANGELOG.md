@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 (2025-12-24)
+
+### Features
+* **RangeFinder HUD**: Real-time distance measurement display to objects in the player's line of sight
+
 ## 1.2.0 (2025-12-19)
 
 ### Features

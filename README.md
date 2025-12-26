@@ -1,81 +1,58 @@
 # ExpandedHUD
 
-A comprehensive HUD enhancement mod for MycoPunk that provides detailed weapon statistics, combat metrics, and movement information.
+A BepInEx mod for MycoPunk that enhances the HUD with additional displays and information overlays.
 
 ## Description
 
-ExpandedHUD enhances gameplay by displaying detailed weapon statistics, real-time combat damage tracking, player movement speed, altitude information, consumable hotkeys, enhanced end-screen statistics, health percentage display, and XP information tweaks. Features include gun stats (damage, fire rate, recoil, etc.), damage meter with DPS calculations, speedometer for precise movement tracking, altimeter for altitude tracking, consumable hotkeys for quick item access, detailed mission end statistics, real-time health percentage overlay, and improved leveling information.
+ExpandedHUD adds various HUD elements to improve gameplay awareness in MycoPunk, including weapon statistics, damage tracking, movement speed, altitude, health/XP displays, and utility features.
 
-The template includes proper plugin attributes, HarmonyLib integration, logging setup, and publishing configuration for Thunderstore mod manager. All mods in the MycoPunk collection are built from this base template, ensuring consistent structure and standards across different modifications.
+## Features
 
-## Getting Started
+- **Gun Stats HUD**: Displays comprehensive weapon statistics including damage, fire rate, magazine size, reload time, range, recoil patterns, spread, and fire mode
+- **Damage Meter HUD**: Real-time combat tracking with total damage, DPS calculations, kill counters, and core destruction metrics
+- **Speedometer HUD**: Live player movement speed display in meters per second
+- **Altimeter HUD**: Real-time altitude tracking display
+- **Consumable Hotkeys**: Quick access hotkeys for consumable items
+- **Health Display**: Real-time health percentage and value overlay on the HUD
+- **XP Information**: Improved leveling display showing XP needed for next level
+- **End Screen Stats**: Detailed mission completion statistics including damage dealt, enemies killed, elemental stacks, and more
+- **RangeFinder HUD**: Real-time distance measurement display to objects in the player's line of sight
 
-### Dependencies
+## Installation
+
+### Prerequisites
 
 * MycoPunk (base game)
 * [BepInEx](https://github.com/BepInEx/BepInEx) - Version 5.4.2403 or compatible
-* .NET Framework 4.8
-* [HarmonyLib](https://github.com/pardeike/Harmony) (included via NuGet)
 
-### Building/Compiling
+### Install via Thunderstore (Recommended)
 
-1. Clone this repository and customize the following:
-   - Rename namespace and class names appropriately
-   - Modify PluginGUID to be unique (format: "author.modname")
-   - Update PluginName and PluginVersion
-   - Add your specific Harmony patches and functionality
+1. Install the Thunderstore Mod Manager
+2. Search for "ExpandedHUD" by Sparroh
+3. Download and install the mod
 
-2. Add any additional NuGet packages or references needed for your mod
+### Manual Installation
 
-3. Open the solution file in Visual Studio, Rider, or your preferred C# IDE
+1. Download the latest release from the [GitHub repository](https://github.com/Little-Sparroh/ExpandedHUD)
+2. Extract the contents to your MycoPunk game directory
+3. Place `ExpandedHUD.dll` in the `BepInEx/plugins/` folder
 
-4. Build the project in Release mode to generate the .dll file
+## Usage
 
-Alternatively, use dotnet CLI:
-```bash
-dotnet build --configuration Release
-```
-
-### Installing
-
-**For distribution as a completed mod:**
-
-**Option 1: Via Thunderstore (Recommended)**
-1. Update `thunderstore.toml` with your mod's specific information
-2. Publish using Thunderstore CLI or mod manager
-3. Users download and install via Thunderstore Mod Manager
-
-**Option 2: Manual Distribution**
-1. Package the built .dll, any config files, and README
-2. Users place the .dll in their `<MycoPunk Directory>/BepInEx/plugins/` folder
-
-**Note:** This template is not meant to be installed directly - customize it first for your specific mod functionality.
-
-### Executing program
-
-Once customized and built, the mod will automatically load through BepInEx when the game starts. Check the BepInEx console for loading confirmation messages.
-
-### Mod Development Structure
-
-- **Plugin.cs:** Main plugin class with Awake method and Harmony initialization
-- **thunderstore.toml:** Publishing configuration for Thunderstore
-- **CSPROJECT.csproj:** Build configuration with proper references
-- **Resources:** Icon and documentation placeholders
+The mod loads automatically when you start MycoPunk. HUD elements can be toggled on/off in the mod's configuration file located at `BepInEx/config/sparroh.expandedhud.cfg`.
 
 ## Help
 
-* **First time modding?** Check BepInEx documentation and MycoPunk modding resources
-* **Harmony patches failing?** Ensure method signatures match the game's IL
-* **Dependency issues?** Update NuGet packages and verify .NET runtime version
-* **Thunderstore publishing?** Update all metadata in thunderstore.toml before publishing
-* **Plugin not loading?** Check BepInEx logs for errors and verify GUID uniqueness
+* **Mod not loading?** Ensure BepInEx is properly installed and check the console for error messages
+* **HUD elements not visible?** Check the configuration file to ensure displays are enabled
+* **Performance issues?** Try disabling unused HUD elements in the config file
+* **Incompatible with other mods?** Report issues on the GitHub repository
 
 ## Authors
 
-* Sparroh (MycoPunk mod collection maintainer)
-* DarkCactus (original UITweaks Mod)
-* funlennysub (original BepInEx template)
-* [@DomPizzie](https://twitter.com/dompizzie) (README template)
+- Sparroh
+- funlennysub (BepInEx template)
+- [@DomPizzie](https://twitter.com/dompizzie) (README template)
 
 ## License
 

@@ -2,7 +2,6 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using System.Reflection;
 using System;
 using Pigeon.Movement;
@@ -33,30 +32,36 @@ public class Speedometer
 
         Instance = this;
 
-        enableSpeedometerHUD = configFile.Bind("General", "EnableSpeedometerHUD", true, "Enables the speedometer HUD display.");
+        try
+        {
+            enableSpeedometerHUD = configFile.Bind("General", "EnableSpeedometerHUD", true, "Enables the speedometer HUD display.");
+            enableSpeedometerHUD.SettingChanged += OnEnableSpeedometerHUDChanged;
 
-        enableSpeedometerHUD.SettingChanged += OnEnableSpeedometerHUDChanged;
-
-        currentMoveSpeedField = typeof(Player).GetField("currentMoveSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
-        vkField = typeof(Player).GetField("velocity", BindingFlags.NonPublic | BindingFlags.Instance) ??
-                  typeof(Player).GetField("velocity", BindingFlags.Public | BindingFlags.Instance);
-        if (vkField == null)
-        {
-            vkProp = typeof(Player).GetProperty("velocity", BindingFlags.Public | BindingFlags.Instance);
+            currentMoveSpeedField = typeof(Player).GetField("currentMoveSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
+            vkField = typeof(Player).GetField("velocity", BindingFlags.NonPublic | BindingFlags.Instance) ??
+                      typeof(Player).GetField("velocity", BindingFlags.Public | BindingFlags.Instance);
+            if (vkField == null)
+            {
+                vkProp = typeof(Player).GetProperty("velocity", BindingFlags.Public | BindingFlags.Instance);
+            }
+            if (vkField == null && vkProp == null)
+            {
+                rbField = typeof(Player).GetField("rb", BindingFlags.NonPublic | BindingFlags.Instance) ??
+                          typeof(Player).GetField("rb", BindingFlags.Public | BindingFlags.Instance);
+            }
+            if (rbField == null && vkField == null && vkProp == null)
+            {
+                rbProp = typeof(Player).GetProperty("rb", BindingFlags.Public | BindingFlags.Instance);
+            }
+            if (rbField == null && rbProp == null && vkField == null && vkProp == null)
+            {
+                moveVelocityField = typeof(Player).GetField("moveVelocity", BindingFlags.NonPublic | BindingFlags.Instance) ??
+                                    typeof(Player).GetField("moveVelocity", BindingFlags.Public | BindingFlags.Instance);
+            }
         }
-        if (vkField == null && vkProp == null)
+        catch (Exception ex)
         {
-            rbField = typeof(Player).GetField("rb", BindingFlags.NonPublic | BindingFlags.Instance) ??
-                      typeof(Player).GetField("rb", BindingFlags.Public | BindingFlags.Instance);
-        }
-        if (rbField == null && vkField == null && vkProp == null)
-        {
-            rbProp = typeof(Player).GetProperty("rb", BindingFlags.Public | BindingFlags.Instance);
-        }
-        if (rbField == null && rbProp == null && vkField == null && vkProp == null)
-        {
-            moveVelocityField = typeof(Player).GetField("moveVelocity", BindingFlags.NonPublic | BindingFlags.Instance) ??
-                                typeof(Player).GetField("moveVelocity", BindingFlags.Public | BindingFlags.Instance);
+            SparrohPlugin.Logger.LogError($"Failed to initialize Speedometer reflection: {ex.Message}");
         }
     }
 
@@ -116,100 +121,113 @@ public class Speedometer
 
     public void Update()
     {
-        if (speedometerHudContainer == null)
+        try
         {
-            CreateSpeedometerHUD();
-            return;
-        }
-
-        if (speedometerHudContainer == null || speedText == null || Player.LocalPlayer == null)
-        {
-            if (speedText != null) speedText.text = "No Player";
-            return;
-        }
-
-        float speed = 0f;
-
-        if (vkField != null || vkProp != null)
-        {
-            if (vkField != null)
+            if (speedometerHudContainer == null)
             {
-                object velObj = vkField.GetValue(Player.LocalPlayer);
-                if (velObj is Vector3 vel)
+                CreateSpeedometerHUD();
+                return;
+            }
+
+            if (speedometerHudContainer == null || speedText == null || Player.LocalPlayer == null)
+            {
+                if (speedText != null) speedText.text = "No Player";
+                return;
+            }
+
+            float speed = 0f;
+
+            if (vkField != null || vkProp != null)
+            {
+                if (vkField != null)
                 {
-                    speed = vel.magnitude;
+                    object velObj = vkField.GetValue(Player.LocalPlayer);
+                    if (velObj is Vector3 vel)
+                    {
+                        speed = vel.magnitude;
+                    }
+                }
+                else if (vkProp != null)
+                {
+                    object velObj = vkProp.GetValue(Player.LocalPlayer);
+                    if (velObj is Vector3 vel)
+                    {
+                        speed = vel.magnitude;
+                    }
                 }
             }
-            else if (vkProp != null)
+            else if (rbField != null || rbProp != null)
             {
-                object velObj = vkProp.GetValue(Player.LocalPlayer);
-                if (velObj is Vector3 vel)
+                if (rbField != null)
                 {
-                    speed = vel.magnitude;
+                    object rbObj = rbField.GetValue(Player.LocalPlayer);
+                    if (rbObj is Rigidbody rb)
+                    {
+                        speed = rb.velocity.magnitude;
+                    }
+                }
+                else if (rbProp != null)
+                {
+                    object rbObj = rbProp.GetValue(Player.LocalPlayer);
+                    if (rbObj is Rigidbody rb)
+                    {
+                        speed = rb.velocity.magnitude;
+                    }
                 }
             }
-        }
-        else if (rbField != null || rbProp != null)
-        {
-            if (rbField != null)
+
+            if (speed == 0f && currentMoveSpeedField != null)
             {
-                object rbObj = rbField.GetValue(Player.LocalPlayer);
-                if (rbObj is Rigidbody rb)
+                object cmsObj = currentMoveSpeedField.GetValue(Player.LocalPlayer);
+                if (cmsObj is float cms)
                 {
-                    speed = rb.velocity.magnitude;
+                    speed = cms;
                 }
             }
-            else if (rbProp != null)
+
+            if (speed == 0f && moveVelocityField != null)
             {
-                object rbObj = rbProp.GetValue(Player.LocalPlayer);
-                if (rbObj is Rigidbody rb)
+                object velObj = moveVelocityField.GetValue(Player.LocalPlayer);
+                if (velObj is Vector3 mv)
                 {
-                    speed = rb.velocity.magnitude;
+                    speed = mv.magnitude;
                 }
             }
-        }
 
-        if (speed == 0f && currentMoveSpeedField != null)
-        {
-            object cmsObj = currentMoveSpeedField.GetValue(Player.LocalPlayer);
-            if (cmsObj is float cms)
+            if (speed > 0f)
             {
-                speed = cms;
+                speedText.text = $"Speed: <color=#{ColorUtility.ToHtmlStringRGB(sky)}>{speed:F1}</color> m/s";
+            }
+            else
+            {
+                speedText.text = "No Speed Detected";
+            }
+
+            if (speedometerHudContainer != null)
+            {
+                var containerRect = speedometerHudContainer.GetComponent<RectTransform>();
+                float yOffset = Carnometer.Instance != null && Carnometer.Instance.IsActive ? -Carnometer.Instance.GetSize.y : 0f;
+                containerRect.anchoredPosition = new Vector2(0f, yOffset);
             }
         }
-
-        if (speed == 0f && moveVelocityField != null)
+        catch (Exception ex)
         {
-            object velObj = moveVelocityField.GetValue(Player.LocalPlayer);
-            if (velObj is Vector3 mv)
-            {
-                speed = mv.magnitude;
-            }
+            SparrohPlugin.Logger.LogError($"Error in Speedometer.Update(): {ex.Message}");
         }
-
-        if (speed > 0f)
-        {
-            speedText.text = $"Speed: <color=#{ColorUtility.ToHtmlStringRGB(sky)}>{speed:F1}</color> m/s";
-        }
-        else
-        {
-            speedText.text = "No Speed Detected";
-        }
-
-        if (speedometerHudContainer != null)
-        {
-            var containerRect = speedometerHudContainer.GetComponent<RectTransform>();
-            float yOffset = Carnometer.Instance != null && Carnometer.Instance.IsActive ? -Carnometer.Instance.GetSize.y : 0f;
-            containerRect.anchoredPosition = new Vector2(0f, yOffset);
-        }
-
     }
 
     public void OnDestroy()
     {
-        if (speedometerHudContainer != null)
+        try
         {
-            UnityEngine.Object.Destroy(speedometerHudContainer);
+            if (speedometerHudContainer != null)
+            {
+                UnityEngine.Object.Destroy(speedometerHudContainer);
+            }
+        }
+        catch (Exception ex)
+        {
+            SparrohPlugin.Logger.LogError($"Error in Speedometer.OnDestroy(): {ex.Message}");
         }
     }
 }
