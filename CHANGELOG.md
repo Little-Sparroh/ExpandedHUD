@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.0 (2026-1-2)
+
+### Features
+* **BossTimer HUD**: Timer display for boss fights, showing elapsed time for the Amalgamation boss
+* **Movable HUD Elements**: HUD elements can now be repositioned using configuration settings
+
+## 1.4.0 (2026-1-1)
+* **UITweaks Removal**: no longer needed. https://thunderstore.io/c/mycopunk/p/Cactus/UITweaks/
+
 ## 1.3.0 (2025-12-24)
 
 ### Features

@@ -4,7 +4,7 @@ A BepInEx mod for MycoPunk that enhances the HUD with additional displays and in
 
 ## Description
 
-ExpandedHUD adds various HUD elements to improve gameplay awareness in MycoPunk, including weapon statistics, damage tracking, movement speed, altitude, health/XP displays, and utility features.
+ExpandedHUD adds various HUD elements to improve gameplay awareness in MycoPunk, including weapon statistics, damage tracking, movement speed, altitude, and utility features.
 
 ## Features
 
@@ -13,10 +13,8 @@ ExpandedHUD adds various HUD elements to improve gameplay awareness in MycoPunk,
 - **Speedometer HUD**: Live player movement speed display in meters per second
 - **Altimeter HUD**: Real-time altitude tracking display
 - **Consumable Hotkeys**: Quick access hotkeys for consumable items
-- **Health Display**: Real-time health percentage and value overlay on the HUD
-- **XP Information**: Improved leveling display showing XP needed for next level
-- **End Screen Stats**: Detailed mission completion statistics including damage dealt, enemies killed, elemental stacks, and more
 - **RangeFinder HUD**: Real-time distance measurement display to objects in the player's line of sight
+- **BossTimer HUD**: Timer display for boss fights, showing elapsed time for the Amalgamation boss
 
 ## Installation
 
@@ -39,7 +37,7 @@ ExpandedHUD adds various HUD elements to improve gameplay awareness in MycoPunk,
 
 ## Usage
 
-The mod loads automatically when you start MycoPunk. HUD elements can be toggled on/off in the mod's configuration file located at `BepInEx/config/sparroh.expandedhud.cfg`.
+The mod loads automatically when you start MycoPunk. HUD elements can be toggled on/off and repositioned in the mod's configuration file located at `BepInEx/config/sparroh.expandedhud.cfg`.
 
 ## Help
 
@@ -51,7 +49,6 @@ The mod loads automatically when you start MycoPunk. HUD elements can be toggled
 ## Authors
 
 - Sparroh
-- DarkCactus (original UITweaks)
 - funlennysub (BepInEx template)
 - [@DomPizzie](https://twitter.com/dompizzie) (README template)
 

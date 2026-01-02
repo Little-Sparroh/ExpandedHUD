@@ -20,6 +20,8 @@ public class ConsumableHotkeys
 
     private ConfigEntry<bool> enableHotkeys;
     private ConfigEntry<bool> enableHUD;
+    private ConfigEntry<float> consumableHotkeysAnchorX;
+    private ConfigEntry<float> consumableHotkeysAnchorY;
 
     private ConfigEntry<Key> personalAccessTokenHotkey;
     private ConfigEntry<Key> premiumLootLicenseHotkey;
@@ -58,6 +60,11 @@ public class ConsumableHotkeys
         enableHotkeys = configFile.Bind("Consumables", "EnableHotkeys", true, "Enables hotkey functionality for consumables.");
         enableHUD = configFile.Bind("Consumables", "EnableHUD", true, "Enables the HUD display for consumable statuses.");
 
+        consumableHotkeysAnchorX = configFile.Bind("HUD Positioning", "ConsumableHotkeysAnchorX", 0.35f, "X anchor position for ConsumableHotkeys (0-1).");
+        consumableHotkeysAnchorY = configFile.Bind("HUD Positioning", "ConsumableHotkeysAnchorY", 0.9f, "Y anchor position for ConsumableHotkeys (0-1).");
+        consumableHotkeysAnchorX.SettingChanged += OnAnchorChanged;
+        consumableHotkeysAnchorY.SettingChanged += OnAnchorChanged;
+
         personalAccessTokenHotkey = configFile.Bind("Consumables", "PersonalAccessToken_Hotkey", Key.Y, "Hotkey for Personal Access Token.");
         premiumLootLicenseHotkey = configFile.Bind("Consumables", "PremiumLootLicense_Hotkey", Key.H, "Hotkey for Premium Loot License.");
         bootlegReplicatorHotkey = configFile.Bind("Consumables", "BootlegReplicator_Hotkey", Key.U, "Hotkey for Bootleg Replicator.");
@@ -92,6 +99,20 @@ public class ConsumableHotkeys
         }
     }
 
+    private void OnAnchorChanged(object sender, EventArgs e)
+    {
+        UpdateAnchors();
+    }
+
+    private void UpdateAnchors()
+    {
+        if (hudContainer != null)
+        {
+            var containerRect = hudContainer.GetComponent<RectTransform>();
+            containerRect.anchorMin = containerRect.anchorMax = new Vector2(consumableHotkeysAnchorX.Value, consumableHotkeysAnchorY.Value);
+        }
+    }
+
     private void CreateHUD()
     {
         if (hudContainer != null) return;
@@ -103,8 +124,7 @@ public class ConsumableHotkeys
         hudContainer.transform.SetParent(parent, false);
 
         var containerRect = hudContainer.AddComponent<RectTransform>();
-        containerRect.anchorMin = new Vector2(0.4f, 0.85f);
-        containerRect.anchorMax = new Vector2(0.4f, 0.85f);
+        containerRect.anchorMin = containerRect.anchorMax = new Vector2(consumableHotkeysAnchorX.Value, consumableHotkeysAnchorY.Value);
         containerRect.anchoredPosition = Vector2.zero;
         containerRect.sizeDelta = new Vector2(400f, 100f);
 

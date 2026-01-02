@@ -10,6 +10,8 @@ public class Carnometer
 {
     private ConfigEntry<bool> enableDamageMeterHUD;
     private ConfigEntry<float> dpsWindowSeconds;
+    private ConfigEntry<float> carnometerAnchorX;
+    private ConfigEntry<float> carnometerAnchorY;
     private GameObject damageMeterHudContainer;
     private TextMeshProUGUI totalDamageText;
     private TextMeshProUGUI fiveSecDamageText;
@@ -40,6 +42,11 @@ public class Carnometer
 
         dpsWindowSeconds = configFile.Bind("General", "DPSWindowSeconds", 5f, "Time window (in seconds) for calculating DPS. Higher values smooth out spikes.");
 
+        carnometerAnchorX = configFile.Bind("HUD Positioning", "CarnometerAnchorX", 0.15f, "X anchor position for Carnometer (0-1).");
+        carnometerAnchorY = configFile.Bind("HUD Positioning", "CarnometerAnchorY", 0.95f, "Y anchor position for Carnometer (0-1).");
+        carnometerAnchorX.SettingChanged += OnAnchorChanged;
+        carnometerAnchorY.SettingChanged += OnAnchorChanged;
+
         harmony.PatchAll(typeof(DPSPatches));
         harmony.PatchAll(typeof(MissionPatches));
 
@@ -62,6 +69,20 @@ public class Carnometer
         UpdateHudVisibility();
     }
 
+    private void OnAnchorChanged(object sender, EventArgs e)
+    {
+        UpdateAnchors();
+    }
+
+    private void UpdateAnchors()
+    {
+        if (damageMeterHudContainer != null)
+        {
+            var containerRect = damageMeterHudContainer.GetComponent<RectTransform>();
+            containerRect.anchorMin = containerRect.anchorMax = new Vector2(carnometerAnchorX.Value, carnometerAnchorY.Value);
+        }
+    }
+
     private void CreateDamageMeterHUD()
     {
         if (damageMeterHudContainer != null) return;
@@ -73,8 +94,7 @@ public class Carnometer
         damageMeterHudContainer.transform.SetParent(parent, false);
 
         var containerRect = damageMeterHudContainer.AddComponent<RectTransform>();
-        containerRect.anchorMin = new Vector2(0.2f, 0.95f);
-        containerRect.anchorMax = new Vector2(0.2f, 0.95f);
+        containerRect.anchorMin = containerRect.anchorMax = new Vector2(carnometerAnchorX.Value, carnometerAnchorY.Value);
         containerRect.anchoredPosition = new Vector2(0f, 0f);
         containerRect.sizeDelta = new Vector2(300f, 100f);
 

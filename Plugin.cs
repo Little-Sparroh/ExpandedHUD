@@ -10,7 +10,7 @@ public class SparrohPlugin : BaseUnityPlugin
 {
     public const string PluginGUID = "sparroh.expandedhud";
     public const string PluginName = "ExpandedHUD";
-    public const string PluginVersion = "1.2.0";
+    public const string PluginVersion = "1.5.0";
 
     internal static new ManualLogSource Logger;
 
@@ -21,6 +21,7 @@ public class SparrohPlugin : BaseUnityPlugin
     private Altimeter altimeter;
     private ConsumableHotkeys consumableHotkeys;
     private RangeFinder rangeFinder;
+    private BossTimer bossTimer;
 
 
     private void Awake()
@@ -108,6 +109,15 @@ public class SparrohPlugin : BaseUnityPlugin
 
         try
         {
+            bossTimer = new BossTimer(configFile, harmony);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Failed to initialize BossTimer: {ex.Message}");
+        }
+
+        try
+        {
             harmony.PatchAll();
         }
         catch (Exception ex)
@@ -180,6 +190,15 @@ public class SparrohPlugin : BaseUnityPlugin
 
         try
         {
+            if (bossTimer != null) bossTimer.UpdateHudVisibility();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error in BossTimer.UpdateHudVisibility(): {ex.Message}");
+        }
+
+        try
+        {
             if (gunDisplay != null) gunDisplay.Update();
         }
         catch (Exception ex)
@@ -230,6 +249,15 @@ public class SparrohPlugin : BaseUnityPlugin
         catch (Exception ex)
         {
             Logger.LogError($"Error in RangeFinder.Update(): {ex.Message}");
+        }
+
+        try
+        {
+            if (bossTimer != null) bossTimer.Update();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error in BossTimer.Update(): {ex.Message}");
         }
 
         try
@@ -298,6 +326,15 @@ public class SparrohPlugin : BaseUnityPlugin
         catch (Exception ex)
         {
             Logger.LogError($"Error in RangeFinder.OnDestroy(): {ex.Message}");
+        }
+
+        try
+        {
+            if (bossTimer != null) bossTimer.OnDestroy();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error in BossTimer.OnDestroy(): {ex.Message}");
         }
 
         try

@@ -9,6 +9,8 @@ using Pigeon.Movement;
 public class Speedometer
 {
     private ConfigEntry<bool> enableSpeedometerHUD;
+    private ConfigEntry<float> speedometerAnchorX;
+    private ConfigEntry<float> speedometerAnchorY;
     private TextMeshProUGUI speedText;
     private GameObject speedometerHudContainer;
     private FieldInfo currentMoveSpeedField;
@@ -36,6 +38,11 @@ public class Speedometer
         {
             enableSpeedometerHUD = configFile.Bind("General", "EnableSpeedometerHUD", true, "Enables the speedometer HUD display.");
             enableSpeedometerHUD.SettingChanged += OnEnableSpeedometerHUDChanged;
+
+            speedometerAnchorX = configFile.Bind("HUD Positioning", "SpeedometerAnchorX", 0.15f, "X anchor position for Speedometer (0-1).");
+            speedometerAnchorY = configFile.Bind("HUD Positioning", "SpeedometerAnchorY", 0.86f, "Y anchor position for Speedometer (0-1).");
+            speedometerAnchorX.SettingChanged += OnAnchorChanged;
+            speedometerAnchorY.SettingChanged += OnAnchorChanged;
 
             currentMoveSpeedField = typeof(Player).GetField("currentMoveSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
             vkField = typeof(Player).GetField("velocity", BindingFlags.NonPublic | BindingFlags.Instance) ??
@@ -87,6 +94,20 @@ public class Speedometer
         UpdateHudVisibility();
     }
 
+    private void OnAnchorChanged(object sender, EventArgs e)
+    {
+        UpdateAnchors();
+    }
+
+    private void UpdateAnchors()
+    {
+        if (speedometerHudContainer != null)
+        {
+            var containerRect = speedometerHudContainer.GetComponent<RectTransform>();
+            containerRect.anchorMin = containerRect.anchorMax = new Vector2(speedometerAnchorX.Value, speedometerAnchorY.Value);
+        }
+    }
+
     private void CreateSpeedometerHUD()
     {
         if (speedometerHudContainer != null) return;
@@ -98,8 +119,7 @@ public class Speedometer
         speedometerHudContainer.transform.SetParent(parent, false);
 
         var containerRect = speedometerHudContainer.AddComponent<RectTransform>();
-        containerRect.anchorMin = new Vector2(0.2f, 0.95f);
-        containerRect.anchorMax = new Vector2(0.2f, 0.95f);
+        containerRect.anchorMin = containerRect.anchorMax = new Vector2(speedometerAnchorX.Value, speedometerAnchorY.Value);
         containerRect.anchoredPosition = new Vector2(0f, 0f);
         containerRect.sizeDelta = new Vector2(300f, 25f);
 
@@ -201,13 +221,6 @@ public class Speedometer
             else
             {
                 speedText.text = "No Speed Detected";
-            }
-
-            if (speedometerHudContainer != null)
-            {
-                var containerRect = speedometerHudContainer.GetComponent<RectTransform>();
-                float yOffset = Carnometer.Instance != null && Carnometer.Instance.IsActive ? -Carnometer.Instance.GetSize.y : 0f;
-                containerRect.anchoredPosition = new Vector2(0f, yOffset);
             }
         }
         catch (Exception ex)

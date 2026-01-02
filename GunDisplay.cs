@@ -10,6 +10,8 @@ using Pigeon.Movement;
 public class GunDisplay
 {
     private ConfigEntry<bool> enableGunStatsHUD;
+    private ConfigEntry<float> gunDisplayAnchorX;
+    private ConfigEntry<float> gunDisplayAnchorY;
     private float updateTimer = 0f;
     private const float UpdateInterval = 0.5f;
     private GameObject gunStatsHudContainer;
@@ -43,6 +45,11 @@ public class GunDisplay
             enableGunStatsHUD = configFile.Bind("General", "EnableGunStatsHUD", true, "If true, the gun stats HUD will be displayed.");
             enableGunStatsHUD.SettingChanged += OnEnableGunStatsHUDChanged;
 
+            gunDisplayAnchorX = configFile.Bind("HUD Positioning", "GunDisplayAnchorX", 0.11f, "X anchor position for GunDisplay (0-1).");
+            gunDisplayAnchorY = configFile.Bind("HUD Positioning", "GunDisplayAnchorY", 1f, "Y anchor position for GunDisplay (0-1).");
+            gunDisplayAnchorX.SettingChanged += OnAnchorChanged;
+            gunDisplayAnchorY.SettingChanged += OnAnchorChanged;
+
             playerField = typeof(Gun).GetField("player", BindingFlags.NonPublic | BindingFlags.Instance);
             activeProp = typeof(IGear).GetProperty("Active");
             modifyBulletDataMethod = typeof(Gun).GetMethod("ModifyBulletData", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -74,6 +81,20 @@ public class GunDisplay
         UpdateHudVisibility();
     }
 
+    private void OnAnchorChanged(object sender, EventArgs e)
+    {
+        UpdateAnchors();
+    }
+
+    private void UpdateAnchors()
+    {
+        if (gunStatsHudContainer != null)
+        {
+            var containerRect = gunStatsHudContainer.GetComponent<RectTransform>();
+            containerRect.anchorMin = containerRect.anchorMax = new Vector2(gunDisplayAnchorX.Value, gunDisplayAnchorY.Value);
+        }
+    }
+
     private void CreateGunStatsHUD()
     {
         if (gunStatsHudContainer != null) return;
@@ -83,8 +104,7 @@ public class GunDisplay
         gunStatsHudContainer.transform.SetParent(parent, false);
 
         var containerRect = gunStatsHudContainer.AddComponent<RectTransform>();
-        containerRect.anchorMin = new Vector2(0.18f, 1.14f);
-        containerRect.anchorMax = new Vector2(0.18f, 1.14f);
+        containerRect.anchorMin = containerRect.anchorMax = new Vector2(gunDisplayAnchorX.Value, gunDisplayAnchorY.Value);
         containerRect.anchoredPosition = new Vector2(0f, 0f);
         containerRect.sizeDelta = new Vector2(350f, 400f);
 
@@ -140,8 +160,6 @@ public class GunDisplay
                 UpdateCurrentGun();
                 UpdateGunStatsHUD();
             }
-
-            AdjustPosition();
         }
         catch (Exception ex)
         {
@@ -293,28 +311,6 @@ public class GunDisplay
             }
         }
         currentGun = null;
-    }
-
-    private void AdjustPosition()
-    {
-        if (gunStatsHudContainer != null)
-        {
-            var containerRect = gunStatsHudContainer.GetComponent<RectTransform>();
-            float yOffset = 0f;
-            if (Carnometer.Instance != null && Carnometer.Instance.IsActive)
-            {
-                yOffset -= Carnometer.Instance.GetSize.y;
-            }
-            if (Speedometer.Instance != null && Speedometer.Instance.IsActive)
-            {
-                yOffset -= Speedometer.Instance.GetSize.y;
-            }
-            if (Altimeter.Instance != null && Altimeter.Instance.IsActive)
-            {
-                yOffset -= Altimeter.Instance.GetSize.y;
-            }
-            containerRect.anchoredPosition = new Vector2(0f, yOffset);
-        }
     }
 
     public void OnDestroy()

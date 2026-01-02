@@ -8,6 +8,8 @@ using Pigeon.Movement;
 public class Altimeter
 {
     private ConfigEntry<bool> enableAltimeterHUD;
+    private ConfigEntry<float> altimeterAnchorX;
+    private ConfigEntry<float> altimeterAnchorY;
     private TextMeshProUGUI altitudeText;
     private GameObject altitudeHudContainer;
     private const float RaycastMaxDistance = 1000f;
@@ -28,6 +30,11 @@ public class Altimeter
         enableAltimeterHUD = configFile.Bind("General", "EnableAltimeterHUD", true, "Enables the Altimeter HUD display showing player altitude above ground.");
 
         enableAltimeterHUD.SettingChanged += OnEnableAltimeterHUDChanged;
+
+        altimeterAnchorX = configFile.Bind("HUD Positioning", "AltimeterAnchorX", 0.15f, "X anchor position for Altimeter (0-1).");
+        altimeterAnchorY = configFile.Bind("HUD Positioning", "AltimeterAnchorY", 0.8375f, "Y anchor position for Altimeter (0-1).");
+        altimeterAnchorX.SettingChanged += OnAnchorChanged;
+        altimeterAnchorY.SettingChanged += OnAnchorChanged;
     }
 
     public bool IsActive => altitudeHudContainer != null && altitudeHudContainer.activeSelf;
@@ -52,6 +59,20 @@ public class Altimeter
         UpdateHudVisibility();
     }
 
+    private void OnAnchorChanged(object sender, EventArgs e)
+    {
+        UpdateAnchors();
+    }
+
+    private void UpdateAnchors()
+    {
+        if (altitudeHudContainer != null)
+        {
+            var containerRect = altitudeHudContainer.GetComponent<RectTransform>();
+            containerRect.anchorMin = containerRect.anchorMax = new Vector2(altimeterAnchorX.Value, altimeterAnchorY.Value);
+        }
+    }
+
     private void CreateAltimeterHUD()
     {
         if (altitudeHudContainer != null) return;
@@ -63,8 +84,7 @@ public class Altimeter
         altitudeHudContainer.transform.SetParent(parent, false);
 
         var containerRect = altitudeHudContainer.AddComponent<RectTransform>();
-        containerRect.anchorMin = new Vector2(0.2f, 0.95f);
-        containerRect.anchorMax = new Vector2(0.2f, 0.95f);
+        containerRect.anchorMin = containerRect.anchorMax = new Vector2(altimeterAnchorX.Value, altimeterAnchorY.Value);
         containerRect.anchoredPosition = new Vector2(0f, 0f);
         containerRect.sizeDelta = new Vector2(300f, 25f);
 
@@ -109,14 +129,6 @@ public class Altimeter
         else
         {
             altitudeText.text = $"Altitude: <color=#{ColorUtility.ToHtmlStringRGB(altitudeGreen)}>{altitude:F1}</color> m";
-        }
-
-        if (altitudeHudContainer != null)
-        {
-            var containerRect = altitudeHudContainer.GetComponent<RectTransform>();
-            float yOffset = (Speedometer.Instance != null && Speedometer.Instance.IsActive ? -Speedometer.Instance.GetSize.y : 0f) +
-                            (Carnometer.Instance != null && Carnometer.Instance.IsActive ? -Carnometer.Instance.GetSize.y : 0f);
-            containerRect.anchoredPosition = new Vector2(0f, yOffset);
         }
 
     }

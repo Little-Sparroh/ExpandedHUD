@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "Sparroh"
 name = "ExpandedHUD"
-description = "Enhanced HUD displaying weapon stats, damage meter with DPS tracking, and real-time speedometer for improved gameplay awareness."
+description = "ExpandedHUD adds various HUD elements to improve gameplay awareness in Mycopunk."
 websiteUrl = "https://github.com/Little-Sparroh/ExpandedHUD"
 containsNsfwContent = false
 
